@@ -2,6 +2,12 @@
 name = "rotten"
 version = "0.1.0"
 edition = "2021"
+description = "Library for kinematics and motion planning in robotics and simulations"
+readme = "README.md"
+repository = "https://github.com/Sooyka/Rotten"
+license = "LGPL-2.1-only"
+keywords = ["kinematics", "motion", "planning"]
+categories = ["science::robotics", "simulation"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
