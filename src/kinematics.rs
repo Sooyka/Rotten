@@ -93,3 +93,48 @@ pub trait IKSolver {
         initial_guess: Option<Vec<f64>>,
     ) -> Result<IKSolution, IKError>;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nalgebra::Vector3;
+
+    #[test]
+    fn fk_error_fmt() {
+        let wrong_joint_err = FKError::WrongJointName("joint1".to_owned());
+        let joint_out_of_range_err = FKError::JointOutOfRange("joint2".to_owned(), 1.0);
+        assert_eq!("Wrong joint name: joint1", wrong_joint_err.to_string());
+        assert_eq!(
+            "Joint joint2 position 1 exceeds range",
+            joint_out_of_range_err.to_string()
+        );
+    }
+
+    #[test]
+    fn ik_solution() {
+        let solution = vec![0.0, 1.0, 2.0];
+        let exact_solution = IKSolution::Exact(solution.clone());
+
+        let axisangle = Vector3::y() * std::f64::consts::FRAC_PI_2;
+        let translation = Vector3::new(1.0, 2.0, 3.0);
+        let pose = Pose::new(translation, axisangle);
+        let tip_pose_vec = vec![("tip1".to_owned(), pose)];
+        let approx_solution = IKSolution::Approx(solution.clone(), tip_pose_vec);
+
+        assert!(exact_solution.is_exact());
+        assert!(!exact_solution.is_approx());
+        assert_eq!(solution, exact_solution.get_any_solution());
+
+        assert!(!approx_solution.is_exact());
+        assert!(approx_solution.is_approx());
+        assert_eq!(solution, approx_solution.get_any_solution());
+    }
+
+    #[test]
+    fn ik_error_fmt() {
+        let not_solvable = IKError::NotSolvable;
+        let wrong_tip = IKError::WrongTipName("tip1".to_owned());
+        assert_eq!("Pose is not solvable", not_solvable.to_string());
+        assert_eq!("Invalid tip name: tip1", wrong_tip.to_string());
+    }
+}
