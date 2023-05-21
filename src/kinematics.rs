@@ -28,6 +28,9 @@ impl std::fmt::Display for FKError {
         }
     }
 }
+
+impl std::error::Error for FKError {}
+
 /// Solution from forward kinematics solver
 #[derive(Debug)]
 pub struct FKSolution {
@@ -67,6 +70,8 @@ impl IKSolution {
         matches!(self, IKSolution::Approx(..))
     }
 }
+
+#[derive(Debug)]
 /// Error for inverse kinematics solver
 pub enum IKError {
     /// Couldn't find any solution
@@ -84,6 +89,8 @@ impl std::fmt::Display for IKError {
         }
     }
 }
+
+impl std::error::Error for IKError {}
 
 /// Solver for inverse kinematics
 pub trait IKSolver {
