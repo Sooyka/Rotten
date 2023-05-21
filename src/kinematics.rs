@@ -1,20 +1,20 @@
 use nalgebra::Isometry3;
 
-type Pose = Isometry3<f64>;
-type FrameName = String;
+pub type Pose = Isometry3<f64>;
+pub type FrameName = String;
 /// Query to kinematics solver
 #[derive(Debug)]
 pub struct JointQuery {
     /// New position for every joint
     /// None means that no change in this joint
     pub joints: Vec<Option<f64>>,
-    /// Name of every link to compute position for
+    /// Name of every frame to compute position for
     pub links: Vec<FrameName>,
 }
 /// Error for forward kinematics solver
 #[derive(Debug)]
 pub enum FKError {
-    /// Asked position of link that is not defined
+    /// Requested position of link that is not defined
     WrongJointName(FrameName),
     /// Query asked to move joint outside of its range
     JointOutOfRange(FrameName, f64),
@@ -24,15 +24,15 @@ impl std::fmt::Display for FKError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             FKError::WrongJointName(s) => write!(f, "Wrong joint name: {s}"),
-            FKError::JointOutOfRange(s, a) => write!(f, "Joint {s} as far as {a}"),
+            FKError::JointOutOfRange(s, a) => write!(f, "Joint {s} position {a} exceeds range"),
         }
     }
 }
 /// Solution from forward kinematics solver
 #[derive(Debug)]
 pub struct FKSolution {
-    /// Returns pose for every asked link
-    pub links: Vec<(FrameName, Pose)>,
+    /// Returns pose for every asked frame
+    pub frames: Vec<(FrameName, Pose)>,
 }
 
 /// Solver for forward kinematics
@@ -50,14 +50,18 @@ pub enum IKSolution {
     Approx(Vec<f64>, Vec<(FrameName, Pose)>),
 }
 impl IKSolution {
+    /// Extracts joints solution while ignoring the
+    /// approx or exact tag
     pub fn get_any_solution(self) -> Vec<f64> {
         match self {
             IKSolution::Exact(v) | IKSolution::Approx(v, _) => v,
         }
     }
+    /// Returns `true` if solution is Exact
     pub fn is_exact(&self) -> bool {
         matches!(self, IKSolution::Exact(_))
     }
+    /// Returns `true` if solution is Approximate
     pub fn is_approx(&self) -> bool {
         matches!(self, IKSolution::Approx(..))
     }
@@ -66,8 +70,9 @@ impl IKSolution {
 pub enum IKError {
     /// Couldn't find any solution
     NotSolvable,
-    ///
-    MissingTip,
+    /// Requested to solve for tip that
+    /// doesn't have defined frame
+    WrongTipName(FrameName),
 }
 
 /// Solver for inverse kinematics

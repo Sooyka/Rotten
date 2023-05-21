@@ -1,4 +1,4 @@
-mod kinematics;
+pub mod kinematics;
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
