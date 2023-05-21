@@ -43,6 +43,7 @@ pub trait FKSolver {
 }
 
 /// Result of inverse kinematics solver
+#[derive(Debug)]
 pub enum IKSolution {
     /// Solution exactly matches end effector position
     Exact(Vec<f64>),
