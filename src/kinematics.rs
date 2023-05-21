@@ -75,6 +75,15 @@ pub enum IKError {
     WrongTipName(FrameName),
 }
 
+impl std::fmt::Display for IKError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IKError::NotSolvable => write!(f, "Pose is not solvable"),
+            IKError::WrongTipName(s) => write!(f, "Invalid tip name: {s}"),
+        }
+    }
+}
+
 /// Solver for inverse kinematics
 pub trait IKSolver {
     /// Computes how to move joints provided tip position
