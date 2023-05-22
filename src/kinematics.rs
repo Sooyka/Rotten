@@ -1,4 +1,5 @@
 use nalgebra::Isometry3;
+use thiserror::Error;
 
 pub type Pose = Isometry3<f64>;
 pub type FrameName = String;
@@ -12,24 +13,15 @@ pub struct JointQuery {
     pub links: Vec<FrameName>,
 }
 /// Error for forward kinematics solver
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum FKError {
     /// Requested position of link that is not defined
+    #[error("Wrong joint name: {0}")]
     WrongJointName(FrameName),
     /// Query asked to move joint outside of its range
+    #[error("Joint {0} position {1} exceeds range")]
     JointOutOfRange(FrameName, f64),
 }
-
-impl std::fmt::Display for FKError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            FKError::WrongJointName(s) => write!(f, "Wrong joint name: {s}"),
-            FKError::JointOutOfRange(s, a) => write!(f, "Joint {s} position {a} exceeds range"),
-        }
-    }
-}
-
-impl std::error::Error for FKError {}
 
 /// Solution from forward kinematics solver
 #[derive(Debug)]
@@ -71,26 +63,17 @@ impl IKSolution {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 /// Error for inverse kinematics solver
 pub enum IKError {
     /// Couldn't find any solution
+    #[error("Pose is not solvable")]
     NotSolvable,
     /// Requested to solve for tip that
     /// doesn't have defined frame
+    #[error("Invalid tip name: {0}")]
     WrongTipName(FrameName),
 }
-
-impl std::fmt::Display for IKError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            IKError::NotSolvable => write!(f, "Pose is not solvable"),
-            IKError::WrongTipName(s) => write!(f, "Invalid tip name: {s}"),
-        }
-    }
-}
-
-impl std::error::Error for IKError {}
 
 /// Solver for inverse kinematics
 pub trait IKSolver {
