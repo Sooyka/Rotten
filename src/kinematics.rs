@@ -1,7 +1,6 @@
 use nalgebra::Isometry3;
 
-pub type Pose = Isometry3<f64>;
-pub type FrameName = String;
+pub use crate::repr::{FrameName, Pose};
 /// Query to kinematics solver
 #[derive(Debug)]
 pub struct JointQuery {
